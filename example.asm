@@ -29,6 +29,7 @@ LIST_IMPLEMENT "foo", 100
 	LIST_ALLOC "foo"	; Allocates index 5
 
 	jsr list_for_test
+	jsr list_for_rev_test
 
 	lda #0
 	LIST_FREE "foo"
@@ -48,6 +49,7 @@ LIST_IMPLEMENT "foo", 100
 	LIST_ALLOC "foo"	; Allocates index 10
 
 	jsr list_for_test
+	jsr list_for_rev_test
 
 	rts
 .endproc
@@ -64,7 +66,21 @@ LIST_IMPLEMENT "foo", 100
 		inx
 		stx $03
 	LIST_FOR_END "foo", "test_for", lda $02
+	rts
+.endproc
 
+.proc list_for_rev_test
+	stz $03
+	LIST_FOR_BEGIN_REVERSE "foo", "test_for", sta $02
+		cmp #$03
+		bne not_index_3
+		LIST_FOR_CONTINUE_REVERSE "foo", "test_for"
+	not_index_3:
+		ldx $03
+		sta $04,x
+		inx
+		stx $03
+	LIST_FOR_END_REVERSE "foo", "test_for", lda $02
 	rts
 .endproc
 

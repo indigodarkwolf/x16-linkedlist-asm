@@ -38,12 +38,16 @@ LINKEDLIST_INC=1
 ;	|	LIST_ALLOC "list_name"									| A, X, Y	|
 ; 	|	LIST_FREE "list_name", IDX_ADDR							| A, X, Y	|
 ; 	|	LIST_GET_FIRST "list_name"								| A			|
+;	|	LIST_GET_LAST "list_name"								| A, X		|
 ; 	|	LIST_GET_NEXT "list_name", IDX_ADDR						| A, X		|
 ; 	|	LIST_GET_PREV "list_name", IDX_ADDR						| A, X		|
 ; 	|	LIST_GET_ALLOCATED "list_name", IDX_ADDR				| A, X		|
 ; 	|	LIST_FOR_BEGIN "list_name", FOR_LABEL, PUSH_METHOD		| A			|
 ; 	|	LIST_FOR_CONTINUE "list_name", FOR_LABEL				| 			|
 ; 	|	LIST_FOR_END "list_name", FOR_LABEL, PULL_METHOD		| A, X		|
+; 	|	LIST_FOR_BEGIN_REVERSE NAME, FOR_LABEL, PUSH_METHOD		| A, X
+; 	|	LIST_FOR_CONTINUE_REVERSE NAME, FOR_LABEL				|
+; 	|	LIST_FOR_END_REVERSE NAME, FOR_LABEL, PULL_METHOD		| A, X
 ;
 ;	Note: Be aware that the list API does not intentionally preserve any registers.
 ;		  Preserve any CPU registers you need before invoking list API functions.
@@ -83,6 +87,9 @@ LINKEDLIST_INC=1
 ;						specified address) from the "used list" into the "free list".
 ;
 ;	LIST_GET_FIRST		gets the index of the first element in the "used list", or 
+;						#$FF if the used list is empty, and returns it in the accumulator.
+;
+;	LIST_GET_LAST		gets the index of the last element in the "used list", or 
 ;						#$FF if the used list is empty, and returns it in the accumulator.
 ;
 ;	LIST_GET_NEXT		gets the next index in the list, using the index in the accumulator
@@ -435,6 +442,15 @@ LINKEDLIST_INC=1
 	lda .ident (.concat ("list_", NAME, "_used_head"))
 .endmacro
 
+.macro LIST_GET_LAST NAME
+.local skip
+	lda .ident (.concat ("list_", NAME, "_used_head"))
+	cmp #$FF
+	beq skip
+	LIST_GET_PREV NAME
+skip:
+.endmacro
+
 .macro LIST_GET_NEXT NAME, IDX_ADDR
 	.ifnblank IDX_ADDR
 		ldx IDX_ADDR
@@ -450,7 +466,7 @@ LINKEDLIST_INC=1
 	.else
 		tax
 	.endif
-	lda .ident (.concat ("list_", NAME, "_next")),x
+	lda .ident (.concat ("list_", NAME, "_prev")),x
 .endmacro
 
 .macro LIST_GET_ALLOCATED NAME, IDX_ADDR
@@ -483,6 +499,29 @@ LINKEDLIST_INC=1
 	cmp .ident (.concat ("list_", NAME, "_used_head"))
 	bne .ident (.concat (NAME, "_", FOR_LABEL))
 .ident (.concat (NAME, "_", FOR_LABEL, "_end")):
+.endmacro
+
+.macro LIST_FOR_BEGIN_REVERSE NAME, FOR_LABEL, PUSH_METHOD
+.ident (.concat (NAME, "_", FOR_LABEL, "_begin_reverse")):
+	LIST_GET_LAST NAME
+	cmp #$FF
+	beq .ident (.concat (NAME, "_", FOR_LABEL, "_end_reverse"))
+.ident (.concat (NAME, "_", FOR_LABEL, "_reverse")):
+	PUSH_METHOD
+.endmacro
+
+.macro LIST_FOR_CONTINUE_REVERSE NAME, FOR_LABEL
+	bra .ident (.concat (NAME, "_", FOR_LABEL, "_continue_reverse"))
+.endmacro
+
+.macro LIST_FOR_END_REVERSE NAME, FOR_LABEL, PULL_METHOD
+.ident (.concat (NAME, "_", FOR_LABEL, "_continue_reverse")):
+	PULL_METHOD
+	cmp .ident (.concat ("list_", NAME, "_used_head"))
+	beq .ident (.concat (NAME, "_", FOR_LABEL, "_end_reverse"))
+	LIST_GET_PREV NAME
+	bra .ident (.concat (NAME, "_", FOR_LABEL, "_reverse"))
+.ident (.concat (NAME, "_", FOR_LABEL, "_end_reverse")):
 .endmacro
 
 .endif ; LINKEDLIST_INC

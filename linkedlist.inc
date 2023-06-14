@@ -32,22 +32,24 @@ LINKEDLIST_INC=1
 ;
 ;	LIST_IMPLEMENT		inserts all of the code needed to manage a linked list.
 ;
-;	| Public API												| Registers |
-;	|-----------------------------------------------------------+-----------|
-; 	|	LIST_INIT "list_name"									| A, X		|
-;	|	LIST_ALLOC "list_name"									| A, X, Y	|
-; 	|	LIST_FREE "list_name", IDX_ADDR							| A, X, Y	|
-; 	|	LIST_GET_FIRST "list_name"								| A			|
-;	|	LIST_GET_LAST "list_name"								| A, X		|
-; 	|	LIST_GET_NEXT "list_name", IDX_ADDR						| A, X		|
-; 	|	LIST_GET_PREV "list_name", IDX_ADDR						| A, X		|
-; 	|	LIST_GET_ALLOCATED "list_name", IDX_ADDR				| A, X		|
-; 	|	LIST_FOR_BEGIN "list_name", FOR_LABEL, PUSH_METHOD		| A			|
-; 	|	LIST_FOR_CONTINUE "list_name", FOR_LABEL				| 			|
-; 	|	LIST_FOR_END "list_name", FOR_LABEL, PULL_METHOD		| A, X		|
-; 	|	LIST_FOR_BEGIN_REVERSE NAME, FOR_LABEL, PUSH_METHOD		| A, X
-; 	|	LIST_FOR_CONTINUE_REVERSE NAME, FOR_LABEL				|
-; 	|	LIST_FOR_END_REVERSE NAME, FOR_LABEL, PULL_METHOD		| A, X
+;	+-------------------------------------------------------------------------------+
+;	| Public API														| Registers |
+;	|-------------------------------------------------------------------+-----------|
+; 	|	LIST_INIT "list_name"											| A, X		|
+;	|	LIST_ALLOC "list_name"											| A, X, Y	|
+; 	|	LIST_FREE "list_name", IDX_ADDR									| A, X, Y	|
+; 	|	LIST_GET_FIRST "list_name"										| A			|
+;	|	LIST_GET_LAST "list_name"										| A, X		|
+; 	|	LIST_GET_NEXT "list_name", IDX_ADDR								| A, X		|
+; 	|	LIST_GET_PREV "list_name", IDX_ADDR								| A, X		|
+; 	|	LIST_GET_ALLOCATED "list_name", IDX_ADDR						| A, X		|
+; 	|	LIST_FOR_BEGIN "list_name", "for_label", PUSH_METHOD			| A			|
+; 	|	LIST_FOR_CONTINUE "list_name", "for_label"						| 			|
+; 	|	LIST_FOR_END "list_name", "for_label", PULL_METHOD				| A, X		|
+; 	|	LIST_FOR_BEGIN_REVERSE "list_name", "for_label", PUSH_METHOD	| A, X		|
+; 	|	LIST_FOR_CONTINUE_REVERSE "list_name", "for_label"				|			|
+; 	|	LIST_FOR_END_REVERSE "list_name", "for_label", PULL_METHOD		| A, X		|
+;	+-------------------------------------------------------------------------------+
 ;
 ;	Note: Be aware that the list API does not intentionally preserve any registers.
 ;		  Preserve any CPU registers you need before invoking list API functions.
@@ -64,7 +66,7 @@ LINKEDLIST_INC=1
 ;						going to be in the accumulator. If omitted, the list API expects
 ;						the list index to be in the accumulator.
 ;
-;	FOR_LABEL			is a string uniquely identifying the for-loop within the current scope.
+;	"for_label"			is a string uniquely identifying the for-loop within the current scope.
 ;						The string cannot contain spaces or special characters, because these
 ;						list macros insert the string into the symbols it creates.
 ;
